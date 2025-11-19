@@ -347,11 +347,20 @@ input[type="checkbox"]:checked::before {
 .drag-handle {
   cursor: grab;
   color: var(--secondary-color);
-  font-size: 1.2rem;
+  user-select: none;
+  margin: 0;
+  line-height: 1;
+  margin-top: 0.15rem;
+  align-self: flex-start;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .task-checkbox {
   flex-shrink: 0;
+  margin-top: 0.15rem;
 }
 
 .task-title {
