@@ -405,3 +405,47 @@ input[type="checkbox"]:checked::before {
 .subtasks {
   /* Subtasks inherit task-item styles */
 }
+
+.toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  padding: 0.2rem;
+  margin-right: 0.2rem;
+  width: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  margin-top: 0.15rem; /* Align with checkbox */
+  transition: transform 0.2s ease;
+}
+
+.toggle-button.expanded {
+  transform: rotate(90deg);
+}
+
+.toggle-button.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.toggle-button:hover {
+  color: var(--primary-color);
+}
+
+.subtasks-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out;
+}
+
+.subtasks-wrapper.expanded {
+  grid-template-rows: 1fr;
+}
+
+.subtasks-inner {
+  overflow: hidden;
+}

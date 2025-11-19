@@ -52,7 +52,7 @@ export const TaskItem = ({ task }) => {
   const handleAddSubtask = async (e) => {
     e.preventDefault();
     if (newSubtaskTitle.trim()) {
-      await addTask(newSubtaskTitle, task.id);
+      await addTask(newSubtaskTitle, String(task.id));
       setNewSubtaskTitle('');
       setShowAddSubtask(false);
       setIsExpanded(true);
@@ -70,6 +70,14 @@ export const TaskItem = ({ task }) => {
       <div className="task-content">
         {/* Drag Handle */}
         <span {...listeners} className="drag-handle">⋮⋮</span>
+
+        <button
+          className={`toggle-button ${subtasks && subtasks.length > 0 ? 'visible' : 'hidden'} ${isExpanded ? 'expanded' : ''}`}
+          onClick={() => setIsExpanded(!isExpanded)}
+          title={isExpanded ? "Collapse subtasks" : "Expand subtasks"}
+        >
+          ▶
+        </button>
 
         <input 
           type="checkbox" 
@@ -126,16 +134,18 @@ export const TaskItem = ({ task }) => {
         </form>
       )}
 
-      {subtasks && subtasks.length > 0 && isExpanded && (
-        <div className="subtasks">
-          <SortableContext 
-            items={subtasks.map(t => t.id)} 
-            strategy={verticalListSortingStrategy}
-          >
-            {subtasks.map(subtask => (
-              <TaskItem key={subtask.id} task={subtask} />
-            ))}
-          </SortableContext>
+      {subtasks && subtasks.length > 0 && (
+        <div className={`subtasks-wrapper ${isExpanded ? 'expanded' : ''}`}>
+          <div className="subtasks-inner">
+            <SortableContext
+              items={subtasks.map(t => t.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {subtasks.map(subtask => (
+                <TaskItem key={subtask.id} task={subtask} />
+              ))}
+            </SortableContext>
+          </div>
         </div>
       )}
     </div>
