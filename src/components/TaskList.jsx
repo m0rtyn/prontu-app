@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, addTask, reorderTask, addPlan, deletePlan } from '../db/db';
+import { db, addTask, reorderTask, addPlan, deletePlan, deleteDatabase, seedPlans } from '../db/db';
 import { TaskItem } from './TaskItem';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -26,10 +26,13 @@ export const TaskList = () => {
     })
   );
 
+  /**
+   * @param {import('@dnd-kit/core').DragEndEvent} event
+   */
   const handleDragEnd = async (event) => {
     const { active, over } = event;
     
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       const activeTask = await db.tasks.get(active.id);
       const overTask = await db.tasks.get(over.id);
 
@@ -48,18 +51,33 @@ export const TaskList = () => {
     }
   };
 
+  /**
+   * @param {React.FormEvent} e
+   */
   const handleAddTask = async (e) => {
     e.preventDefault();
     if (newTaskTitle.trim()) {
-      await addTask(newTaskTitle);
-      setNewTaskTitle('');
+      try {
+        await addTask(newTaskTitle);
+        setNewTaskTitle('');
+      } catch (error) {
+        console.error("Failed to add task:", error);
+        alert("Failed to add task. The database might be in an invalid state. Try reloading or resetting.");
+      }
     }
   };
 
+  /**
+   * @param {React.FormEvent} e
+   */
   const handleSavePlan = async (e) => {
     e.preventDefault();
     if (newPlanTitle.trim()) {
       // Recursively build the plan structure from current tasks
+      /**
+       * @param {string|number} parentId
+       * @returns {Promise<Array>}
+       */
       const buildPlanTasks = async (parentId) => {
         const children = await db.tasks.where('parentId').equals(String(parentId)).sortBy('order');
         const planChildren = [];
@@ -93,8 +111,15 @@ export const TaskList = () => {
     }
   };
 
+  /**
+   * @param {object} plan
+   */
   const loadPlan = async (plan) => {
     if (confirm(`Load plan "${plan.title}"? This will add tasks to your list.`)) {
+      /**
+       * @param {object} task
+       * @param {string|number} [parentId='root']
+       */
       const addRecursive = async (task, parentId = 'root') => {
         const id = await addTask(task.title, parentId, task.completed);
         if (task.children) {
@@ -115,6 +140,10 @@ export const TaskList = () => {
     }
   };
 
+  /**
+   * @param {object} plan
+   * @param {React.MouseEvent} e
+   */
   const handleExportPlan = (plan, e) => {
     e.stopPropagation();
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(plan, null, 2));
@@ -126,35 +155,40 @@ export const TaskList = () => {
     downloadAnchorNode.remove();
   };
 
+  /**
+   * @param {React.ChangeEvent<HTMLInputElement>} e
+   */
   const handleImportPlan = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = async (event) => {
       try {
-        const plan = JSON.parse(event.target.result);
-        if (!plan.title || !plan.tasks) {
-          alert('Invalid plan format: Missing title or tasks.');
-          return;
-        }
-        
-        // Remove IDs to avoid conflicts and ensure it's treated as a new plan
-        const cleanPlan = {
-          ...plan,
-          id: undefined,
-          isCustom: true
-        };
+        if (typeof event.target?.result === 'string') {
+          const plan = JSON.parse(event.target.result);
+          if (!plan.title || !plan.tasks) {
+            alert('Invalid plan format: Missing title or tasks.');
+            return;
+          }
 
-        await addPlan(cleanPlan.title, cleanPlan.description || '', cleanPlan.tasks);
-        alert(`Plan "${cleanPlan.title}" imported successfully!`);
+          // Remove IDs to avoid conflicts and ensure it's treated as a new plan
+          const cleanPlan = {
+            ...plan,
+            id: undefined,
+            isCustom: true
+          };
+
+          await addPlan(cleanPlan.title, cleanPlan.description || '', cleanPlan.tasks);
+          alert(`Plan "${cleanPlan.title}" imported successfully!`);
+        }
       } catch (error) {
         console.error('Error importing plan:', error);
         alert('Error importing plan. Please check the file format.');
       }
     };
     reader.readAsText(file);
-    e.target.value = null; // Reset input
+    e.target.value = ''; // Reset input
   };
 
   const handleReset = async () => {
@@ -202,6 +236,24 @@ export const TaskList = () => {
         >
           🔄
         </button>
+        <button
+          onClick={() => {
+            if (confirm('HARD RESET: This will DELETE the entire database and reload the app. Use this if the app is stuck. Continue?')) {
+              deleteDatabase();
+            }
+          }}
+          title="Hard Reset (Fix Stuck App)"
+          style={{
+            padding: '0 16px',
+            backgroundColor: 'var(--danger-color)',
+            color: 'white',
+            border: 'none',
+            borderRadius: 'var(--radius)',
+            cursor: 'pointer'
+          }}
+        >
+          ⚠️
+        </button>
       </div>
 
       <DndContext 
@@ -219,7 +271,11 @@ export const TaskList = () => {
             ))}
           </SortableContext>
           
-          {tasks?.length === 0 && (
+          {tasks === undefined ? (
+            <div style={{ textAlign: 'center', marginTop: '40px', color: 'var(--secondary-color)' }}>
+              Loading...
+            </div>
+          ) : tasks.length === 0 ? (
             <div style={{ textAlign: 'center', marginTop: '40px' }}>
               <p style={{ color: 'var(--secondary-color)', marginBottom: '20px' }}>
                 No goals yet. Start by adding one above or...
@@ -235,7 +291,7 @@ export const TaskList = () => {
                 Load a Training Plan
               </button>
             </div>
-          )}
+          ) : null}
         </div>
       </DndContext>
 
@@ -268,7 +324,7 @@ export const TaskList = () => {
                 style={{ marginBottom: '20px' }}
               />
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button type="button" onClick={() => setShowSavePlan(false)}>Cancel</button>
+                <button type="button" onClick={() => setShowSavePlan(false)} style={{ color: 'var(--secondary-color)' }}>Cancel</button>
                 <button type="submit" style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>Save</button>
               </div>
             </form>
@@ -349,10 +405,31 @@ export const TaskList = () => {
                   )}
                 </div>
               ))}
+
+              {(!plans || plans.length === 0) && (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <p style={{ marginBottom: '10px', color: 'var(--secondary-color)' }}>No plans found.</p>
+                  <button
+                    onClick={async () => {
+                      await seedPlans();
+                      alert('Default plans restored!');
+                    }}
+                    style={{
+                      color: 'var(--accent-color)',
+                      textDecoration: 'underline',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Restore Default Plans
+                  </button>
+                </div>
+              )}
             </div>
             <button 
               onClick={() => setShowPlans(false)}
-              style={{ marginTop: '20px', width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)' }}
+              style={{ marginTop: '20px', width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)', color: 'var(--text-color)' }}
             >
               Cancel
             </button>

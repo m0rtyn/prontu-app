@@ -5,6 +5,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
+/**
+ * @param {object} props
+ * @param {import('../db/db').Task} props.task
+ */
 export const TaskItem = ({ task }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -42,6 +46,9 @@ export const TaskItem = ({ task }) => {
     }
   };
 
+  /**
+   * @param {React.FormEvent} e
+   */
   const handleAddSubtask = async (e) => {
     e.preventDefault();
     if (newSubtaskTitle.trim()) {
@@ -93,18 +100,34 @@ export const TaskItem = ({ task }) => {
           </span>
         )}
 
-        <div className="actions" style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+        <div className="actions" style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
           <button 
             onClick={() => setShowAddSubtask(!showAddSubtask)} 
             title="Add Subtask"
-            style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}
+            style={{
+              color: 'var(--accent-color)',
+              fontWeight: 'bold',
+              padding: '8px 12px', // Larger touch target
+              fontSize: '1.2rem',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer'
+            }}
           >
             +
           </button>
           <button 
             onClick={handleDelete} 
             title="Delete" 
-            style={{ color: 'var(--danger-color)', fontWeight: 'bold' }}
+            style={{
+              color: 'var(--danger-color)',
+              fontWeight: 'bold',
+              padding: '8px 12px', // Larger touch target
+              fontSize: '1.2rem',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer'
+            }}
           >
             ×
           </button>

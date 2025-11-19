@@ -1,50 +1,63 @@
 import Dexie from 'dexie';
-
-export const db = new Dexie('ProntuDB');
-
-db.version(1).stores({
-  tasks: '++id, title, completed, parentId, createdAt' // Primary key and indexed props
-});
-
-// Version 2: Add 'order' field
-db.version(2).stores({
-  tasks: '++id, title, completed, parentId, order, createdAt'
-}).upgrade(async tx => {
-  // Initialize order for existing tasks
-  await tx.table('tasks').toCollection().modify(task => {
-    task.order = task.createdAt.getTime(); // Simple initial order
-  });
-});
-
 import { trainingPlans } from '../data/trainingPlans';
 
-// Version 3: Add 'plans' table
-db.version(3).stores({
-  tasks: '++id, title, completed, parentId, order, createdAt',
-  plans: '++id, title, description, isCustom'
-}).upgrade(async tx => {
-  // Seed initial plans
-  await tx.table('plans').bulkAdd(trainingPlans.map(p => ({
-    ...p,
-    isCustom: false
-  })));
+export class ProntuDB extends Dexie {
+  tasks;
+  plans;
+
+  constructor() {
+    super('ProntuDB');
+    this.version(1).stores({
+      tasks: '++id, title, completed, parentId, createdAt'
+    });
+
+    this.version(2).stores({
+      tasks: '++id, title, completed, parentId, order, createdAt'
+    });
+
+    this.version(3).stores({
+      tasks: '++id, title, completed, parentId, order, createdAt',
+      plans: '++id, title, description, isCustom'
+    });
+
+    this.version(4).stores({
+      tasks: '++id, title, completed, parentId, order, createdAt',
+      plans: '++id, title, description, isCustom'
+    }).upgrade(async tx => {
+      // Remove existing built-in plans to avoid duplicates/outdated versions
+      await tx.table('plans').where('isCustom').equals(false).delete();
+
+      // Re-seed all built-in plans
+      if (trainingPlans && Array.isArray(trainingPlans)) {
+        await tx.table('plans').bulkAdd(trainingPlans.map(p => ({
+          ...p,
+          isCustom: false
+        })));
+      }
+    });
+
+    this.tasks = this.table('tasks');
+    this.plans = this.table('plans');
+  }
+}
+
+export const db = new ProntuDB();
+
+// Populate hook for fresh installs
+db.on('populate', async () => {
+  if (trainingPlans && Array.isArray(trainingPlans)) {
+    await db.plans.bulkAdd(trainingPlans.map(p => ({
+      ...p,
+      isCustom: false
+    })));
+  }
 });
 
-// Version 4: Re-seed plans to include new Beginner Plan
-db.version(4).stores({
-  tasks: '++id, title, completed, parentId, order, createdAt',
-  plans: '++id, title, description, isCustom'
-}).upgrade(async tx => {
-  // Remove existing built-in plans to avoid duplicates/outdated versions
-  await tx.table('plans').where('isCustom').equals(false).delete();
-
-  // Re-seed all built-in plans
-  await tx.table('plans').bulkAdd(trainingPlans.map(p => ({
-    ...p,
-    isCustom: false
-  })));
-});
-
+/**
+ * @param {string} title
+ * @param {string} [parentId='root']
+ * @param {boolean} [completed=false]
+ */
 export const addTask = async (title, parentId = 'root', completed = false) => {
   // Get the max order for this parent to append to the end
   const siblings = await db.tasks.where('parentId').equals(String(parentId)).toArray();
@@ -59,6 +72,11 @@ export const addTask = async (title, parentId = 'root', completed = false) => {
   });
 };
 
+/**
+ * @param {string} title
+ * @param {string} description
+ * @param {Array} tasks
+ */
 export const addPlan = async (title, description, tasks) => {
   return await db.plans.add({
     title,
@@ -68,14 +86,24 @@ export const addPlan = async (title, description, tasks) => {
   });
 };
 
+/**
+ * @param {number} id
+ */
 export const deletePlan = async (id) => {
   return await db.plans.delete(id);
 };
 
+/**
+ * @param {number} id
+ * @param {object} updates
+ */
 export const updateTask = async (id, updates) => {
   return await db.tasks.update(id, updates);
 };
 
+/**
+ * @param {number} id
+ */
 export const deleteTask = async (id) => {
   // Recursive delete
   const subtasks = await db.tasks.where('parentId').equals(String(id)).toArray();
@@ -85,13 +113,38 @@ export const deleteTask = async (id) => {
   return await db.tasks.delete(id);
 };
 
+/**
+ * @param {string} [parentId='root']
+ */
 export const getTasks = (parentId = 'root') => {
   return db.tasks.where('parentId').equals(parentId).sortBy('order');
 };
 
+/**
+ * @param {number} taskId
+ * @param {string} newParentId
+ * @param {number} newOrder
+ */
 export const reorderTask = async (taskId, newParentId, newOrder) => {
   return await db.tasks.update(taskId, {
     parentId: String(newParentId),
     order: newOrder
   });
+};
+
+export const deleteDatabase = async () => {
+  await db.delete();
+  window.location.reload();
+};
+
+export const seedPlans = async () => {
+  if (trainingPlans && Array.isArray(trainingPlans)) {
+    await db.plans.where('isCustom').equals(false).delete();
+    await db.plans.bulkAdd(trainingPlans.map(p => ({
+      ...p,
+      isCustom: false
+    })));
+    return true;
+  }
+  return false;
 };

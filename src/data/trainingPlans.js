@@ -11,7 +11,6 @@ export const trainingPlans = [
             title: "Health & Conditioning",
             completed: false,
             children: [
-              { title: "Consult with a doctor before starting intense training", completed: false },
               { title: "Master a 10-15 min Warm-up Routine (Joints, Cardio, Dynamic Stretch)", completed: false },
               { title: "Master a 5-10 min Cool-down Routine (Static Stretch)", completed: false },
               { title: "Build Cardio: Run 2km without stopping", completed: false },
@@ -37,7 +36,7 @@ export const trainingPlans = [
             title: "Music & Culture",
             completed: false,
             children: [
-              { title: "Listen to Capoeira music daily", completed: false },
+              { title: "Listen to Capoeira music daily 7 days in a row", completed: false },
               { title: "Learn to clap the basic rhythm (Palmas)", completed: false },
               { title: "Attend >80% of classes in the first month", completed: false }
             ]
