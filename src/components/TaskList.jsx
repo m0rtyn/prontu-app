@@ -4,6 +4,7 @@ import { db, addTask, reorderTask, addPlan, deletePlan, deleteDatabase, seedPlan
 import { TaskItem } from './TaskItem';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { About } from './About';
 
 export const TaskList = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -12,6 +13,7 @@ export const TaskList = () => {
   const [newPlanTitle, setNewPlanTitle] = useState('');
   const [newPlanDesc, setNewPlanDesc] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   
   const tasks = useLiveQuery(() => 
     db.tasks.where('parentId').equals('root').sortBy('order')
@@ -218,6 +220,13 @@ export const TaskList = () => {
         >
           💾
         </button>
+        <button
+          onClick={() => setShowAbout(true)}
+          title="Help & About"
+          className="toolbar-button"
+        >
+          ?
+        </button>
         <div className="settings-menu-container">
           <button 
             onClick={() => setShowSettings(!showSettings)}
@@ -234,6 +243,7 @@ export const TaskList = () => {
                   handleReset();
                 }}
                 className="settings-menu-item"
+                title="Clear all current tasks"
               >
                 🔄 Reset Plan
               </button>
@@ -245,6 +255,7 @@ export const TaskList = () => {
                   }
                 }}
                 className="settings-menu-item danger"
+                title="Delete entire database and reload app"
               >
                 ⚠️ Hard Reset
               </button>
@@ -280,6 +291,7 @@ export const TaskList = () => {
               <button 
                 onClick={() => setShowPlans(!showPlans)}
                   className="empty-state-button"
+                  title="Choose from predefined training plans"
               >
                 Load a Training Plan
               </button>
@@ -317,8 +329,8 @@ export const TaskList = () => {
                 style={{ marginBottom: '20px' }}
               />
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button type="button" onClick={() => setShowSavePlan(false)} style={{ color: 'var(--secondary-color)' }}>Cancel</button>
-                <button type="submit" style={{ color: 'var(--accent-color)', fontWeight: 'bold' }}>Save</button>
+                <button type="button" onClick={() => setShowSavePlan(false)} style={{ color: 'var(--secondary-color)' }} title="Cancel saving plan">Cancel</button>
+                <button type="submit" style={{ color: 'var(--accent-color)', fontWeight: 'bold' }} title="Save current tasks as a training plan">Save</button>
               </div>
             </form>
           </div>
@@ -385,6 +397,7 @@ export const TaskList = () => {
                       alert('Default plans restored!');
                     }}
                     className="empty-state-button"
+                    title="Re-add the default training plans"
                   >
                     Restore Default Plans
                   </button>
@@ -395,12 +408,17 @@ export const TaskList = () => {
               onClick={() => setShowPlans(false)}
               className="modal-button"
               style={{ marginTop: '1.25rem', width: '100%', padding: '0.5rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)' }}
+              title="Close this dialog"
             >
               Cancel
             </button>
           </div>
         </div>
       )}
+
+      {/* About Modal */}
+      {showAbout && <About onClose={() => setShowAbout(false)} />}
     </div>
   );
 };
+
