@@ -66,16 +66,16 @@ export const TaskItem = ({ task }) => {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
-      <div className="task-content" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div ref={setNodeRef} style={style} {...attributes} className="task-item">
+      <div className="task-content">
         {/* Drag Handle */}
-        <span {...listeners} style={{ cursor: 'grab', color: 'var(--secondary-color)', fontSize: '1.2rem' }}>⋮⋮</span>
+        <span {...listeners} className="drag-handle">⋮⋮</span>
 
         <input 
           type="checkbox" 
           checked={task.completed} 
           onChange={handleToggle}
-          style={{ flexShrink: 0 }}
+          className="task-checkbox"
         />
         
         {isEditing ? (
@@ -89,68 +89,25 @@ export const TaskItem = ({ task }) => {
           />
         ) : (
           <span 
-            style={{ 
-              textDecoration: task.completed ? 'line-through' : 'none',
-              color: task.completed ? 'var(--secondary-color)' : 'var(--text-color)',
-              flex: 1,
-              cursor: 'pointer'
-            }}
+              className={`task-title${task.completed ? ' completed' : ''}`}
             onClick={() => setIsEditing(true)}
           >
             {task.title}
           </span>
         )}
 
-        <div className="actions" style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+        <div className="task-actions">
           <button 
             onClick={() => setShowAddSubtask(!showAddSubtask)} 
             title="Add Subtask"
-            style={{ 
-              color: 'var(--text-color)', 
-              fontWeight: 'bold',
-              padding: '6px 10px',
-              fontSize: '1.2rem',
-              background: 'transparent',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius)',
-              cursor: 'pointer',
-              opacity: 0.7,
-              transition: 'opacity 0.2s, border-color 0.2s'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.borderColor = 'var(--text-color)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.opacity = '0.7';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-            }}
+            className="task-action-button"
           >
             +
           </button>
           <button 
             onClick={handleDelete} 
             title="Delete" 
-            style={{ 
-              color: 'var(--text-color)', 
-              fontWeight: 'bold',
-              padding: '6px 10px',
-              fontSize: '1.2rem',
-              background: 'transparent',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius)',
-              cursor: 'pointer',
-              opacity: 0.7,
-              transition: 'opacity 0.2s, border-color 0.2s'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.borderColor = 'var(--text-color)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.opacity = '0.7';
-              e.currentTarget.style.borderColor = 'var(--border-color)';
-            }}
+            className="task-action-button"
           >
             ×
           </button>
@@ -158,7 +115,7 @@ export const TaskItem = ({ task }) => {
       </div>
 
       {showAddSubtask && (
-        <form onSubmit={handleAddSubtask} style={{ marginLeft: '30px', marginTop: '8px' }}>
+        <form onSubmit={handleAddSubtask} className="subtask-form">
           <input 
             type="text" 
             placeholder="New subtask..." 

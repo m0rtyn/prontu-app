@@ -117,3 +117,282 @@ input[type="checkbox"]:checked::before {
   font-size: 2rem;
   letter-spacing: -0.05em;
 }
+
+/* TaskList Styles */
+.task-list-toolbar {
+  display: flex;
+  gap: 0.63rem;
+  margin-bottom: 1.5rem;
+}
+
+.task-list-input-wrapper {
+  flex: 1;
+}
+
+.task-list-input {
+  font-size: 1.1rem;
+  padding: 0.75rem;
+}
+
+.toolbar-button {
+  padding: 0 1rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-menu-container {
+  position: relative;
+}
+
+.settings-button {
+  padding: 0 1rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+  min-width: 12.5rem;
+  z-index: 1000;
+}
+
+.settings-menu-item {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: background-color 0.2s;
+}
+
+.settings-menu-item:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-menu-item:hover {
+  background-color: var(--border-color);
+}
+
+.settings-menu-item.danger {
+  color: var(--danger-color);
+  font-weight: bold;
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+
+.empty-state-text {
+  color: var(--secondary-color);
+  margin-bottom: 1.25rem;
+}
+
+.empty-state-button {
+  color: var(--accent-color);
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: var(--bg-color);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  max-width: 31.25rem;
+  width: 90%;
+}
+
+.modal.scrollable {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-input {
+  margin-bottom: 0.75rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.63rem;
+  justify-content: flex-end;
+}
+
+.modal-button {
+  color: var(--secondary-color);
+}
+
+.modal-button.primary {
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.plan-item {
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.plan-item:hover {
+  border-color: var(--primary-color);
+}
+
+.plan-item h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.plan-item p {
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+}
+
+.plan-badge {
+  font-size: 0.7rem;
+  margin-left: 0.5rem;
+  background-color: var(--secondary-color);
+  color: var(--bg-color);
+  padding: 0.13rem 0.38rem;
+  border-radius: 0.25rem;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.plan-action-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 0.25rem;
+  transition: opacity 0.2s;
+}
+
+.plan-action-button:hover {
+  opacity: 1;
+}
+
+/* TaskItem Styles */
+.task-item {
+  margin-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.task-content {
+  display: flex;
+  align-items: center;
+  gap: 0.63rem;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: var(--secondary-color);
+  font-size: 1.2rem;
+}
+
+.task-checkbox {
+  flex-shrink: 0;
+}
+
+.task-title {
+  flex: 1;
+  cursor: pointer;
+}
+
+.task-title.completed {
+  text-decoration: line-through;
+  color: var(--secondary-color);
+}
+
+.task-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.task-action-button {
+  color: var(--text-color);
+  font-weight: bold;
+  padding: 0.38rem 0.63rem;
+  font-size: 1.2rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+
+.task-action-button:hover {
+  opacity: 1;
+  border-color: var(--text-color);
+}
+
+.subtask-form {
+  margin-left: 1.88rem;
+  margin-top: 0.5rem;
+}
+
+.subtasks {
+  /* Subtasks inherit task-item styles */
+}

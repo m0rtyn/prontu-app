@@ -201,76 +201,39 @@ export const TaskList = () => {
 
   return (
     <div className="task-list">
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px' }}>
-        <form onSubmit={handleAddTask} style={{ flex: 1 }}>
+      <div className="task-list-toolbar">
+        <form onSubmit={handleAddTask} className="task-list-input-wrapper">
           <input 
             type="text" 
             placeholder="Add a new goal..." 
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
-            style={{ fontSize: '1.1rem', padding: '12px' }}
+            className="task-list-input"
           />
         </form>
         <button 
           onClick={() => setShowSavePlan(true)}
           title="Save current list as a plan"
-          style={{ 
-            padding: '0 16px', 
-            backgroundColor: 'var(--bg-color)', 
-            border: '1px solid var(--border-color)', 
-            borderRadius: 'var(--radius)',
-            cursor: 'pointer'
-          }}
+          className="toolbar-button"
         >
           💾
         </button>
-        <div style={{ position: 'relative' }}>
+        <div className="settings-menu-container">
           <button 
             onClick={() => setShowSettings(!showSettings)}
             title="Settings"
-            style={{
-              padding: '0 16px',
-              backgroundColor: 'var(--bg-color)',
-              border: '1px solid var(--border-color)',
-              borderRadius: 'var(--radius)',
-              cursor: 'pointer',
-              fontSize: '1.2rem'
-            }}
+            className="settings-button"
           >
             ⋮
           </button>
           {showSettings && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '100%',
-                right: 0,
-                marginTop: '8px',
-                backgroundColor: 'var(--bg-color)',
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--radius)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                minWidth: '200px',
-                zIndex: 1000
-              }}
-            >
+            <div className="settings-popover">
               <button
                 onClick={() => {
                   setShowSettings(false);
                   handleReset();
                 }}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  border: 'none',
-                  background: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--text-color)',
-                  borderBottom: '1px solid var(--border-color)'
-                }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--border-color)'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                className="settings-menu-item"
               >
                 🔄 Reset Plan
               </button>
@@ -281,18 +244,7 @@ export const TaskList = () => {
                     deleteDatabase();
                   }
                 }}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  textAlign: 'left',
-                  border: 'none',
-                  background: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--danger-color)',
-                  fontWeight: 'bold'
-                }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--border-color)'}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                className="settings-menu-item danger"
               >
                 ⚠️ Hard Reset
               </button>
@@ -317,21 +269,17 @@ export const TaskList = () => {
           </SortableContext>
           
           {tasks === undefined ? (
-            <div style={{ textAlign: 'center', marginTop: '40px', color: 'var(--secondary-color)' }}>
+            <div className="empty-state">
               Loading...
             </div>
           ) : tasks.length === 0 ? (
-            <div style={{ textAlign: 'center', marginTop: '40px' }}>
-              <p style={{ color: 'var(--secondary-color)', marginBottom: '20px' }}>
+              <div className="empty-state">
+                <p className="empty-state-text">
                 No goals yet. Start by adding one above or...
               </p>
               <button 
                 onClick={() => setShowPlans(!showPlans)}
-                style={{ 
-                  color: 'var(--accent-color)', 
-                  textDecoration: 'underline',
-                  fontSize: '0.9rem'
-                }}
+                  className="empty-state-button"
               >
                 Load a Training Plan
               </button>
@@ -379,93 +327,64 @@ export const TaskList = () => {
 
       {/* Load Plan Modal */}
       {showPlans && (
-        <div className="modal-overlay" style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000
-        }} onClick={() => setShowPlans(false)}>
-          <div className="modal" style={{
-            backgroundColor: 'var(--bg-color)', padding: '24px', borderRadius: 'var(--radius)',
-            maxWidth: '500px', width: '90%', maxHeight: '80vh', overflowY: 'auto'
-          }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h2 style={{ margin: 0 }}>Select a Plan</h2>
+        <div className="modal-overlay" onClick={() => setShowPlans(false)}>
+          <div className="modal scrollable" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Select a Plan</h2>
               <label style={{ 
                 cursor: 'pointer', color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold',
-                display: 'flex', alignItems: 'center', gap: '4px'
+                display: 'flex', alignItems: 'center', gap: '0.25rem'
               }}>
                 📥 Import JSON
                 <input type="file" accept=".json" onChange={handleImportPlan} style={{ display: 'none' }} />
               </label>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="plan-list">
               {plans?.map((plan, index) => (
-                <div key={index} style={{ 
-                  border: '1px solid var(--border-color)', padding: '16px', borderRadius: 'var(--radius)',
-                  cursor: 'pointer', transition: 'border-color 0.2s',
-                  position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'
-                }}
-                onClick={() => loadPlan(plan)}
-                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary-color)'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-color)'}
-                >
+                <div key={index} className="plan-item" onClick={() => loadPlan(plan)}>
                   <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '4px' }}>
+                    <h3>
                       {plan.title}
-                      {plan.isCustom && <span style={{ fontSize: '0.7rem', marginLeft: '8px', backgroundColor: 'var(--secondary-color)', color: 'var(--bg-color)', padding: '2px 6px', borderRadius: '4px' }}>CUSTOM</span>}
+                      {plan.isCustom && <span className="plan-badge">CUSTOM</span>}
                     </h3>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--secondary-color)' }}>{plan.description}</p>
+                    <p>{plan.description}</p>
                   </div>
-                  <button 
-                    onClick={(e) => handleExportPlan(plan, e)}
-                    title="Export to JSON"
-                    style={{ 
-                      background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer',
-                      opacity: 0.6, padding: '4px'
-                    }}
-                    onMouseEnter={e => e.target.style.opacity = 1}
-                    onMouseLeave={e => e.target.style.opacity = 0.6}
-                  >
-                    📤
-                  </button>
-                  {plan.isCustom && (
+                  <div className="plan-actions">
                     <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        if (confirm(`Are you sure you want to delete plan "${plan.title}"?`)) {
-                          await deletePlan(plan.id);
-                        }
-                      }}
-                      title="Delete Plan"
-                      style={{
-                        background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer',
-                        opacity: 0.6, padding: '4px', marginLeft: '4px'
-                      }}
-                      onMouseEnter={e => e.target.style.opacity = 1}
-                      onMouseLeave={e => e.target.style.opacity = 0.6}
+                      onClick={(e) => handleExportPlan(plan, e)}
+                      title="Export to JSON"
+                      className="plan-action-button"
                     >
-                      🗑️
+                      📤
                     </button>
-                  )}
+                    {plan.isCustom && (
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (confirm(`Are you sure you want to delete plan "${plan.title}"?`)) {
+                            await deletePlan(plan.id);
+                          }
+                        }}
+                        title="Delete Plan"
+                        className="plan-action-button"
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
 
               {(!plans || plans.length === 0) && (
-                <div style={{ textAlign: 'center', padding: '20px' }}>
-                  <p style={{ marginBottom: '10px', color: 'var(--secondary-color)' }}>No plans found.</p>
+                <div className="empty-state">
+                  <p className="empty-state-text">No plans found.</p>
                   <button
                     onClick={async () => {
                       await seedPlans();
                       alert('Default plans restored!');
                     }}
-                    style={{
-                      color: 'var(--accent-color)',
-                      textDecoration: 'underline',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
+                    className="empty-state-button"
                   >
                     Restore Default Plans
                   </button>
@@ -474,7 +393,8 @@ export const TaskList = () => {
             </div>
             <button 
               onClick={() => setShowPlans(false)}
-              style={{ marginTop: '20px', width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)', color: 'var(--text-color)' }}
+              className="modal-button"
+              style={{ marginTop: '1.25rem', width: '100%', padding: '0.5rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)' }}
             >
               Cancel
             </button>
