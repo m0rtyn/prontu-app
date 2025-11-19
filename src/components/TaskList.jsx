@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, addTask, reorderTask, addPlan, deletePlan, deleteDatabase, seedPlans } from '../db/db';
 import { TaskItem } from './TaskItem';
@@ -32,7 +32,7 @@ export const TaskList = () => {
   /**
    * @param {import('@dnd-kit/core').DragEndEvent} event
    */
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = useCallback(async (event) => {
     const { active, over } = event;
     
     if (over && active.id !== over.id) {
@@ -52,12 +52,12 @@ export const TaskList = () => {
         }
       }
     }
-  };
+  }, []);
 
   /**
    * @param {React.FormEvent} e
    */
-  const handleAddTask = async (e) => {
+  const handleAddTask = useCallback(async (e) => {
     e.preventDefault();
     if (newTaskTitle.trim()) {
       try {
@@ -68,12 +68,12 @@ export const TaskList = () => {
         alert("Failed to add task. The database might be in an invalid state. Try reloading or resetting.");
       }
     }
-  };
+  }, [newTaskTitle]);
 
   /**
    * @param {React.FormEvent} e
    */
-  const handleSavePlan = async (e) => {
+  const handleSavePlan = useCallback(async (e) => {
     e.preventDefault();
     if (newPlanTitle.trim()) {
       // Recursively build the plan structure from current tasks
@@ -112,12 +112,12 @@ export const TaskList = () => {
       setShowSavePlan(false);
       alert('Plan saved!');
     }
-  };
+  }, [newPlanTitle, newPlanDesc]);
 
   /**
    * @param {object} plan
    */
-  const loadPlan = async (plan) => {
+  const loadPlan = useCallback(async (plan) => {
     if (confirm(`Load plan "${plan.title}"? This will add tasks to your list.`)) {
       /**
        * @param {object} task
@@ -141,13 +141,13 @@ export const TaskList = () => {
       }
       setShowPlans(false);
     }
-  };
+  }, []);
 
   /**
    * @param {object} plan
    * @param {React.MouseEvent} e
    */
-  const handleExportPlan = (plan, e) => {
+  const handleExportPlan = useCallback((plan, e) => {
     e.stopPropagation();
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(plan, null, 2));
     const downloadAnchorNode = document.createElement('a');
@@ -156,12 +156,12 @@ export const TaskList = () => {
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
-  };
+  }, []);
 
   /**
    * @param {React.ChangeEvent<HTMLInputElement>} e
    */
-  const handleImportPlan = async (e) => {
+  const handleImportPlan = useCallback(async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -192,14 +192,41 @@ export const TaskList = () => {
     };
     reader.readAsText(file);
     e.target.value = ''; // Reset input
-  };
+  }, []);
 
-  const handleReset = async () => {
+  const handleReset = useCallback(async () => {
     if (confirm('Are you sure you want to reset? This will delete all current tasks.')) {
       await db.tasks.clear();
       setShowPlans(true);
     }
-  };
+  }, []);
+
+  const handleReloadApp = useCallback(async () => {
+    setShowSettings(false);
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+      }
+    }
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+    }
+    window.location.reload();
+  }, []);
+
+  const handleHardReset = useCallback(() => {
+    setShowSettings(false);
+    if (confirm('HARD RESET: This will DELETE the entire database and reload the app. Use this if the app is stuck. Continue?')) {
+      deleteDatabase();
+    }
+  }, []);
+
+  const handleRestoreDefaultPlans = useCallback(async () => {
+    await seedPlans();
+    alert('Default plans restored!');
+  }, []);
 
   return (
     <div className="task-list">
@@ -248,12 +275,14 @@ export const TaskList = () => {
                 🔄 Reset Plan
               </button>
               <button
-                onClick={() => {
-                  setShowSettings(false);
-                  if (confirm('HARD RESET: This will DELETE the entire database and reload the app. Use this if the app is stuck. Continue?')) {
-                    deleteDatabase();
-                  }
-                }}
+                onClick={handleReloadApp}
+                className="settings-menu-item"
+                title="Clear cache and reload app with latest version"
+              >
+                🔃 Update App
+              </button>
+              <button
+                onClick={handleHardReset}
                 className="settings-menu-item danger"
                 title="Delete entire database and reload app"
               >
@@ -392,10 +421,7 @@ export const TaskList = () => {
                 <div className="empty-state">
                   <p className="empty-state-text">No plans found.</p>
                   <button
-                    onClick={async () => {
-                      await seedPlans();
-                      alert('Default plans restored!');
-                    }}
+                    onClick={handleRestoreDefaultPlans}
                     className="empty-state-button"
                     title="Re-add the default training plans"
                   >
