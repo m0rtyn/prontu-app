@@ -30,6 +30,21 @@ db.version(3).stores({
   })));
 });
 
+// Version 4: Re-seed plans to include new Beginner Plan
+db.version(4).stores({
+  tasks: '++id, title, completed, parentId, order, createdAt',
+  plans: '++id, title, description, isCustom'
+}).upgrade(async tx => {
+  // Remove existing built-in plans to avoid duplicates/outdated versions
+  await tx.table('plans').where('isCustom').equals(false).delete();
+
+  // Re-seed all built-in plans
+  await tx.table('plans').bulkAdd(trainingPlans.map(p => ({
+    ...p,
+    isCustom: false
+  })));
+});
+
 export const addTask = async (title, parentId = 'root', completed = false) => {
   // Get the max order for this parent to append to the end
   const siblings = await db.tasks.where('parentId').equals(String(parentId)).toArray();
