@@ -1,0 +1,105 @@
+{
+  "title": "Beginner Capoeira Roadmap",
+  "description": "A structured guide for your first year in Capoeira, from zero to confident basics.",
+  "tasks": [
+    {
+      "title": "Phase 0: Foundation & Adaptation (Months 1-3)",
+      "children": [
+        {
+          "title": "Health & Conditioning",
+          "children": [
+            { "title": "Consult with a doctor before starting intense training" },
+            { "title": "Master a 10-15 min Warm-up Routine (Joints, Cardio, Dynamic Stretch)" },
+            { "title": "Master a 5-10 min Cool-down Routine (Static Stretch)" },
+            { "title": "Build Cardio: Run 2km without stopping" },
+            { "title": "Strength Goal: 15 Push-ups (good form)" },
+            { "title": "Strength Goal: 20 Squats (hips below knees)" },
+            { "title": "Strength Goal: 60s Plank" },
+            { "title": "Flexibility: Daily stretching habit (10-15 mins)" }
+          ]
+        },
+        {
+          "title": "Capoeira Basics",
+          "children": [
+            { "title": "Learn 'Ginga' (The fundamental step) - Maintain rhythm for 3 mins" },
+            { "title": "Learn 'Cadeira' / Parallel Stance - Hold for 1 min" },
+            { "title": "Escape: 'Cocorinha' (Squat defense)" },
+            { "title": "Escape: 'Esquiva Baixa' (Low escape)" },
+            { "title": "Escape: 'Esquiva Lateral' (Side escape)" },
+            { "title": "Movement: 'Rolê' (Roll across the floor)" }
+          ]
+        },
+        {
+          "title": "Music & Culture",
+          "children": [
+            { "title": "Listen to Capoeira music daily" },
+            { "title": "Learn to clap the basic rhythm (Palmas)" },
+            { "title": "Attend >80% of classes in the first month" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Phase 1: Mastering the Basics (Months 3-6)",
+      "children": [
+        {
+          "title": "Technique Expansion",
+          "children": [
+            { "title": "Ginga Variations: Change levels and directions" },
+            { "title": "Kick: 'Meia Lua de Frente' (Front half-moon)" },
+            { "title": "Kick: 'Queixada' (Chin strike)" },
+            { "title": "Kick: 'Armada' (Spinning kick)" },
+            { "title": "Kick: 'Martelo' (Hammer kick)" },
+            { "title": "Kick: 'Bênção' (Front push kick)" },
+            { "title": "Escape: 'Esquiva Diagonal' (Diagonal escape)" },
+            { "title": "Movement: 'Negativa' (Negative stance) & transitions" }
+          ]
+        },
+        {
+          "title": "Acrobatics Introduction",
+          "children": [
+            { "title": "Aú (Cartwheel): Both sides, smooth landing" },
+            { "title": "Bananeira (Handstand): Hold against wall for 30s" }
+          ]
+        },
+        {
+          "title": "Music & Roda",
+          "children": [
+            { "title": "Identify instruments: Berimbau, Pandeiro, Atabaque, Agogo" },
+            { "title": "Learn 3-5 basic songs (Choruses)" },
+            { "title": "Understand Roda etiquette (When to enter, buy the game)" }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Phase 2: Flow & Combinations (Months 6-12)",
+      "children": [
+        {
+          "title": "Advanced Movement",
+          "children": [
+            { "title": "Connect moves into 3-move sequences (e.g., Kick -> Escape -> Move)" },
+            { "title": "Macaco (Monkey flip) basics" },
+            { "title": "S-Dobrado basics" },
+            { "title": "Handstand: Hold 5-10s without wall" }
+          ]
+        },
+        {
+          "title": "The Game (Jogo)",
+          "children": [
+            { "title": "Play in the Roda: 'Question & Answer' dialogue" },
+            { "title": "Develop a personal style / signature move" }
+          ]
+        },
+        {
+          "title": "Musicianship",
+          "children": [
+            { "title": "Play a basic rhythm on Pandeiro or Agogo" },
+            { "title": "Learn 5-7 full songs (Verses & Chorus)" },
+            { "title": "Learn about the history of your group/mestre" }
+          ]
+        }
+      ]
+    }
+  ]
+}
