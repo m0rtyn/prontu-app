@@ -4,7 +4,7 @@ export const Layout = ({ children }) => {
   return (
     <div className="container">
       <header className="header">
-        <h1>Prontu</h1>
+        <h1>Pronto</h1>
       </header>
       <main>
         {children}

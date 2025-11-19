@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, addTask, reorderTask, addPlan } from '../db/db';
+import { db, addTask, reorderTask, addPlan, deletePlan } from '../db/db';
 import { TaskItem } from './TaskItem';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -328,6 +328,25 @@ export const TaskList = () => {
                   >
                     📤
                   </button>
+                  {plan.isCustom && (
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (confirm(`Are you sure you want to delete plan "${plan.title}"?`)) {
+                          await deletePlan(plan.id);
+                        }
+                      }}
+                      title="Delete Plan"
+                      style={{
+                        background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer',
+                        opacity: 0.6, padding: '4px', marginLeft: '4px'
+                      }}
+                      onMouseEnter={e => e.target.style.opacity = 1}
+                      onMouseLeave={e => e.target.style.opacity = 0.6}
+                    >
+                      🗑️
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'Prontu - Capoeira Tracker',
-        short_name: 'Prontu',
+        name: 'Pronto - Capoeira Tracker',
+        short_name: 'Pronto',
         description: 'Track your Capoeira progress with ease.',
         theme_color: '#ffffff',
         icons: [

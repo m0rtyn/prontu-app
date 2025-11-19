@@ -53,6 +53,10 @@ export const addPlan = async (title, description, tasks) => {
   });
 };
 
+export const deletePlan = async (id) => {
+  return await db.plans.delete(id);
+};
+
 export const updateTask = async (id, updates) => {
   return await db.tasks.update(id, updates);
 };
