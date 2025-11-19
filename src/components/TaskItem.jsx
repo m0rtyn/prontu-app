@@ -75,6 +75,7 @@ export const TaskItem = ({ task }) => {
           type="checkbox" 
           checked={task.completed} 
           onChange={handleToggle}
+          style={{ flexShrink: 0 }}
         />
         
         {isEditing ? (
@@ -104,14 +105,25 @@ export const TaskItem = ({ task }) => {
           <button 
             onClick={() => setShowAddSubtask(!showAddSubtask)} 
             title="Add Subtask"
-            style={{
-              color: 'var(--accent-color)',
+            style={{ 
+              color: 'var(--text-color)', 
               fontWeight: 'bold',
-              padding: '8px 12px', // Larger touch target
+              padding: '6px 10px',
               fontSize: '1.2rem',
               background: 'transparent',
-              border: 'none',
-              cursor: 'pointer'
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius)',
+              cursor: 'pointer',
+              opacity: 0.7,
+              transition: 'opacity 0.2s, border-color 0.2s'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.borderColor = 'var(--text-color)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.opacity = '0.7';
+              e.currentTarget.style.borderColor = 'var(--border-color)';
             }}
           >
             +
@@ -119,14 +131,25 @@ export const TaskItem = ({ task }) => {
           <button 
             onClick={handleDelete} 
             title="Delete" 
-            style={{
-              color: 'var(--danger-color)',
+            style={{ 
+              color: 'var(--text-color)', 
               fontWeight: 'bold',
-              padding: '8px 12px', // Larger touch target
+              padding: '6px 10px',
               fontSize: '1.2rem',
               background: 'transparent',
-              border: 'none',
-              cursor: 'pointer'
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius)',
+              cursor: 'pointer',
+              opacity: 0.7,
+              transition: 'opacity 0.2s, border-color 0.2s'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.borderColor = 'var(--text-color)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.opacity = '0.7';
+              e.currentTarget.style.borderColor = 'var(--border-color)';
             }}
           >
             ×

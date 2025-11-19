@@ -41,6 +41,25 @@ export class ProntuDB extends Dexie {
   }
 }
 
+/**
+ * @typedef {object} Task
+ * @property {number} id
+ * @property {string} title
+ * @property {boolean} completed
+ * @property {string} parentId
+ * @property {number} [order]
+ * @property {Date} createdAt
+ */
+
+/**
+ * @typedef {object} Plan
+ * @property {number} id
+ * @property {string} title
+ * @property {string} description
+ * @property {Array<Task>} tasks
+ * @property {boolean} isCustom
+ */
+
 export const db = new ProntuDB();
 
 // Populate hook for fresh installs

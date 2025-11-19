@@ -11,6 +11,7 @@ export const TaskList = () => {
   const [showSavePlan, setShowSavePlan] = useState(false);
   const [newPlanTitle, setNewPlanTitle] = useState('');
   const [newPlanDesc, setNewPlanDesc] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
   
   const tasks = useLiveQuery(() => 
     db.tasks.where('parentId').equals('root').sortBy('order')
@@ -223,37 +224,81 @@ export const TaskList = () => {
         >
           💾
         </button>
-        <button 
-          onClick={handleReset}
-          title="Reset Plan"
-          style={{ 
-            padding: '0 16px', 
-            backgroundColor: 'var(--bg-color)', 
-            border: '1px solid var(--border-color)', 
-            borderRadius: 'var(--radius)',
-            cursor: 'pointer'
-          }}
-        >
-          🔄
-        </button>
-        <button
-          onClick={() => {
-            if (confirm('HARD RESET: This will DELETE the entire database and reload the app. Use this if the app is stuck. Continue?')) {
-              deleteDatabase();
-            }
-          }}
-          title="Hard Reset (Fix Stuck App)"
-          style={{
-            padding: '0 16px',
-            backgroundColor: 'var(--danger-color)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 'var(--radius)',
-            cursor: 'pointer'
-          }}
-        >
-          ⚠️
-        </button>
+        <div style={{ position: 'relative' }}>
+          <button 
+            onClick={() => setShowSettings(!showSettings)}
+            title="Settings"
+            style={{
+              padding: '0 16px',
+              backgroundColor: 'var(--bg-color)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius)',
+              cursor: 'pointer',
+              fontSize: '1.2rem'
+            }}
+          >
+            ⋮
+          </button>
+          {showSettings && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: '8px',
+                backgroundColor: 'var(--bg-color)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                minWidth: '200px',
+                zIndex: 1000
+              }}
+            >
+              <button
+                onClick={() => {
+                  setShowSettings(false);
+                  handleReset();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-color)',
+                  borderBottom: '1px solid var(--border-color)'
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--border-color)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                🔄 Reset Plan
+              </button>
+              <button
+                onClick={() => {
+                  setShowSettings(false);
+                  if (confirm('HARD RESET: This will DELETE the entire database and reload the app. Use this if the app is stuck. Continue?')) {
+                    deleteDatabase();
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  textAlign: 'left',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--danger-color)',
+                  fontWeight: 'bold'
+                }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--border-color)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                ⚠️ Hard Reset
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <DndContext 
