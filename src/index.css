@@ -340,7 +340,7 @@ input[type="checkbox"]:checked::before {
 
 .task-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.63rem;
 }
 
