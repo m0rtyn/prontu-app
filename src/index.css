@@ -561,6 +561,27 @@ input[type="checkbox"]:checked::after {
   display: grid;
   grid-template-rows: 0fr;
   transition: grid-template-rows 0.3s ease-out;
+  position: relative; /* For guide line positioning */
+}
+
+/* Vertical Guide Line */
+.subtasks-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: calc(var(--control-size) / 2 - 1px); /* Position to the left of the subtasks, aligning with parent's drag handle */
+  bottom: 1rem; /* Stop slightly before the bottom to align with last item roughly */
+  border-left: 2px solid var(--border-color);
+  border-left-style: dotted;
+  opacity: 0.5;
+  /* height: calc(100% - 0.5rem); */
+  transition: opacity 0.2s;
+}
+
+.subtasks-wrapper:hover::before {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--secondary-color) 10%, var(--border-color));
+  border-left-style: solid;
 }
 
 .subtasks-wrapper.expanded {
