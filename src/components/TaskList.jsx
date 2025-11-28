@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, addTask, reorderTask, addPlan, deletePlan, deleteDatabase, seedPlans } from '../db/db';
 import { TaskItem } from './TaskItem';
@@ -14,6 +14,26 @@ export const TaskList = () => {
   const [newPlanDesc, setNewPlanDesc] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const settingsMenuRef = useRef(/** @type {HTMLDivElement | null} */(null));
+
+  useEffect(() => {
+    /**
+     * @param {MouseEvent} event
+     */
+    const handleClickOutside = (event) => {
+      if (settingsMenuRef.current && event.target instanceof Node && !settingsMenuRef.current.contains(event.target)) {
+        setShowSettings(false);
+      }
+    };
+
+    if (showSettings) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSettings]);
   
   const tasks = useLiveQuery(() => 
     db.tasks.where('parentId').equals('root').sortBy('order')
@@ -247,14 +267,7 @@ export const TaskList = () => {
         >
           💾
         </button>
-        <button
-          onClick={() => setShowAbout(true)}
-          title="Help & About"
-          className="toolbar-button"
-        >
-          ?
-        </button>
-        <div className="settings-menu-container">
+        <div className="settings-menu-container" ref={settingsMenuRef}>
           <button 
             onClick={() => setShowSettings(!showSettings)}
             title="Settings"
@@ -262,8 +275,16 @@ export const TaskList = () => {
           >
             ⋮
           </button>
+
           {showSettings && (
-            <div className="settings-popover">
+            <div className="popover settings-popover">
+              <button
+                onClick={() => setShowAbout(true)}
+                title="Help & About"
+                className="settings-menu-item"
+              >
+                Help & About
+              </button>
               <button
                 onClick={() => {
                   setShowSettings(false);
@@ -331,23 +352,16 @@ export const TaskList = () => {
 
       {/* Save Plan Modal */}
       {showSavePlan && (
-        <div className="modal-overlay" style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 1000
-        }} onClick={() => setShowSavePlan(false)}>
-          <div className="modal" style={{
-            backgroundColor: 'var(--bg-color)', padding: '24px', borderRadius: 'var(--radius)',
-            maxWidth: '500px', width: '90%'
-          }} onClick={e => e.stopPropagation()}>
-            <h2 style={{ marginBottom: '16px' }}>Save as Plan</h2>
+        <div className="modal-overlay" onClick={() => setShowSavePlan(false)}>
+          <div className="modal save-plan-modal" onClick={e => e.stopPropagation()}>
+            <h2 className="save-plan-title">Save as Plan</h2>
             <form onSubmit={handleSavePlan}>
               <input 
                 type="text" 
                 placeholder="Plan Title" 
                 value={newPlanTitle}
                 onChange={(e) => setNewPlanTitle(e.target.value)}
-                style={{ marginBottom: '12px' }}
+                className="save-plan-input"
                 autoFocus
               />
               <input 
@@ -355,11 +369,11 @@ export const TaskList = () => {
                 placeholder="Description (optional)" 
                 value={newPlanDesc}
                 onChange={(e) => setNewPlanDesc(e.target.value)}
-                style={{ marginBottom: '20px' }}
+                className="save-plan-desc"
               />
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button type="button" onClick={() => setShowSavePlan(false)} style={{ color: 'var(--secondary-color)' }} title="Cancel saving plan">Cancel</button>
-                <button type="submit" style={{ color: 'var(--accent-color)', fontWeight: 'bold' }} title="Save current tasks as a training plan">Save</button>
+              <div className="save-plan-actions">
+                <button type="button" onClick={() => setShowSavePlan(false)} className="save-plan-cancel" title="Cancel saving plan">Cancel</button>
+                <button type="submit" className="save-plan-confirm" title="Save current tasks as a training plan">Save</button>
               </div>
             </form>
           </div>
@@ -372,12 +386,9 @@ export const TaskList = () => {
           <div className="modal scrollable" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Select a Plan</h2>
-              <label style={{ 
-                cursor: 'pointer', color: 'var(--accent-color)', fontSize: '0.9rem', fontWeight: 'bold',
-                display: 'flex', alignItems: 'center', gap: '0.25rem'
-              }}>
+              <label className="import-label">
                 📥 Import JSON
-                <input type="file" accept=".json" onChange={handleImportPlan} style={{ display: 'none' }} />
+                <input type="file" accept=".json" onChange={handleImportPlan} className="hidden-input" />
               </label>
             </div>
             
@@ -432,8 +443,7 @@ export const TaskList = () => {
             </div>
             <button 
               onClick={() => setShowPlans(false)}
-              className="modal-button"
-              style={{ marginTop: '1.25rem', width: '100%', padding: '0.5rem', border: '1px solid var(--border-color)', borderRadius: 'var(--radius)' }}
+              className="modal-button modal-cancel-button"
               title="Close this dialog"
             >
               Cancel

@@ -55,7 +55,8 @@ input[type="text"] {
   font-family: inherit;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin-left: 0.5rem;
   background: transparent;
   color: var(--text-color);
   width: 100%;
@@ -67,38 +68,10 @@ input[type="text"]:focus {
   border-color: var(--primary-color);
 }
 
-/* Custom Checkbox */
+/* Custom Checkbox - Redefined in TaskItem section for better control sizing */
+/* Keeping these for reference or other parts of the app if needed, but overriding for task items */
 input[type="checkbox"] {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--secondary-color);
-  border-radius: 4px;
-  display: grid;
-  place-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-input[type="checkbox"]::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  transform: scale(0);
-  transition: 120ms transform ease-in-out;
-  box-shadow: inset 1em 1em var(--bg-color);
-  background-color: var(--bg-color);
-  transform-origin: center;
-  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-}
-
-input[type="checkbox"]:checked {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-
-input[type="checkbox"]:checked::before {
-  transform: scale(1);
+  /* Common reset */
 }
 
 .container {
@@ -121,7 +94,7 @@ input[type="checkbox"]:checked::before {
 /* TaskList Styles */
 .task-list-toolbar {
   display: flex;
-  gap: 0.63rem;
+  gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
@@ -129,9 +102,11 @@ input[type="checkbox"]:checked::before {
   flex: 1;
 }
 
-.task-list-input {
+.task-list-input.task-list-input {
   font-size: 1.1rem;
   padding: 0.75rem;
+  height: 100%;
+  margin: 0;
 }
 
 .toolbar-button {
@@ -160,17 +135,15 @@ input[type="checkbox"]:checked::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  height: 100%;
 }
 
 .settings-popover {
-  position: absolute;
-  top: 100%;
   right: 0;
   margin-top: 0.5rem;
   background-color: var(--bg-color);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--primary-color);
   border-radius: var(--radius);
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
   min-width: 12.5rem;
   z-index: 1000;
 }
@@ -334,14 +307,19 @@ input[type="checkbox"]:checked::before {
 
 /* TaskItem Styles */
 .task-item {
-  margin-left: 1.25rem;
+  margin-left: var(--control-size);
   margin-top: 0.5rem;
+  --control-size: 1.5rem;
+}
+
+.tasks > .task-item {
+  margin-left: 0;
 }
 
 .task-content {
   display: flex;
   align-items: flex-start;
-  gap: 0.63rem;
+  gap: 0.1rem;
 }
 
 .drag-handle {
@@ -350,8 +328,12 @@ input[type="checkbox"]:checked::before {
   user-select: none;
   margin: 0;
   line-height: 1;
-  margin-top: 0.15rem;
-  align-self: flex-start;
+  width: var(--control-size);
+  height: var(--control-size);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .drag-handle:active {
@@ -360,12 +342,64 @@ input[type="checkbox"]:checked::before {
 
 .task-checkbox {
   flex-shrink: 0;
-  margin-top: 0.15rem;
+  width: var(--control-size);
+  height: var(--control-size);
+  margin: 0; /* Remove margin-top */
+  display: grid;
+  place-content: center;
 }
+
+/* Adjust checkbox visual size inside the control area */
+.task-checkbox::before {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  width: var(--control-size);
+  height: var(--control-size);
+  border: none; /* The container shouldn't have the border */
+  background: transparent;
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Create a pseudo-element for the actual visual box */
+input[type="checkbox"]::after {
+  content: "";
+  width: calc(var(--control-size) - 2px);
+  height: calc(var(--control-size) - 2px);
+  border: 2px solid var(--secondary-color);
+  padding: 2px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  transition: all 0.2s;
+  background-color: transparent;
+}
+
+input[type="checkbox"]:checked::after {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-size: 80%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Remove old checkbox styles that conflict */
+/* input[type="checkbox"]::before { content: none; } */
+
 
 .task-title {
   flex: 1;
   cursor: pointer;
+  padding: 0 0.5rem; /* Add some padding for text */
+  display: flex;
+  align-items: center;
+  min-height: var(--control-size);
 }
 
 .task-title.completed {
@@ -397,8 +431,91 @@ input[type="checkbox"]:checked::before {
   border-color: var(--text-color);
 }
 
+.task-menu-container {
+  position: relative;
+  margin-left: auto;
+  width: var(--control-size);
+  height: var(--control-size);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.task-menu-button {
+  color: var(--text-color);
+  font-weight: bold;
+  padding: 0;
+  font-size: 1.2rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s, border-color 0.2s, background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.task-menu-button:hover, .task-menu-button.active {
+  opacity: 1;
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+.popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius);
+  box-shadow: 0 0.25rem 0rem 0.5rem var(--bg-color);
+  min-width: 12.5rem;
+  z-index: 100;
+}
+
+.task-menu-popover {
+  margin-top: 0.25rem;
+  min-width: 10rem;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.task-menu-item {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.task-menu-item:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.task-menu-item:hover {
+  background-color: var(--border-color);
+}
+
+.task-menu-item.danger {
+  color: var(--danger-color);
+}
+
 .subtask-form {
-  margin-left: 1.88rem;
+  margin-left: var(--control-size);
   margin-top: 0.5rem;
 }
 
@@ -412,25 +529,29 @@ input[type="checkbox"]:checked::before {
   cursor: pointer;
   font-size: 0.8rem;
   color: var(--secondary-color);
-  padding: 0.2rem;
-  margin-right: 0.2rem;
-  width: 1.5rem;
+  width: var(--control-size);
+  height: var(--control-size);
+  aspect-ratio: 1;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   align-self: flex-start;
-  margin-top: 0.15rem; /* Align with checkbox */
   transition: transform 0.2s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  &.expanded.has-subtasks {
+    transform: rotate(90deg);
+  }
+
+  &.has-subtasks:after {
+    content: "▶";
+    color: var(--primary-color);
+  }
 }
 
-.toggle-button.expanded {
-  transform: rotate(90deg);
-}
 
-.toggle-button.hidden {
-  visibility: hidden;
-  pointer-events: none;
-}
+
 
 .toggle-button:hover {
   color: var(--primary-color);
@@ -448,4 +569,140 @@ input[type="checkbox"]:checked::before {
 
 .subtasks-inner {
   overflow: hidden;
+  /* Ensure it reverts to hidden immediately when collapsing */
+  transition: overflow 0s linear 0s;
+}
+
+.subtasks-wrapper.expanded > .subtasks-inner {
+  overflow: visible;
+  /* Delay visible until after the 0.3s grid-template-rows transition */
+  transition: overflow 0s linear 0.3s;
+}
+
+/* Save Plan Modal */
+.save-plan-modal {
+  max-width: 500px;
+  width: 90%;
+}
+
+.save-plan-title {
+  margin-bottom: 16px;
+}
+
+.save-plan-input {
+  margin-bottom: 12px !important;
+}
+
+.save-plan-desc {
+  margin-bottom: 20px !important;
+}
+
+.save-plan-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.save-plan-cancel {
+  color: var(--secondary-color);
+}
+
+.save-plan-confirm {
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+/* Import Plan */
+.import-label {
+  cursor: pointer;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.modal-cancel-button {
+  margin-top: 1.25rem;
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+}
+
+/* About Modal */
+.about-modal {
+  max-width: 50rem;
+}
+
+.about-content {
+  line-height: 1.6;
+}
+
+.about-description {
+  margin-bottom: 1rem;
+  color: var(--secondary-color);
+}
+
+.about-section-title {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.about-list {
+  margin-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.about-text-block {
+  margin-bottom: 0.5rem;
+}
+
+.about-text-indent {
+  margin-left: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--secondary-color);
+}
+
+.about-text-indent-large {
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  color: var(--secondary-color);
+}
+
+.quote-box {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: var(--border-color);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.quote-text {
+  margin: 0;
+  font-style: italic;
+}
+
+.quote-subtext {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+}
+
+.about-button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+}
+
+/* TaskItem specific overrides */
+.task-item {
+  margin-top: 0.5rem; /* Replaces inline marginTop: '8px' */
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, updateTask, deleteTask, addTask } from '../db/db';
 import { useSortable } from '@dnd-kit/sortable';
@@ -15,6 +15,27 @@ export const TaskItem = ({ task }) => {
   const [editTitle, setEditTitle] = useState(task.title);
   const [showAddSubtask, setShowAddSubtask] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(/** @type {HTMLDivElement | null} */(null));
+
+  useEffect(() => {
+    /**
+     * @param {MouseEvent} event
+     */
+    const handleClickOutside = (event) => {
+      if (menuRef.current && event.target instanceof Node && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
 
   const {
     attributes,
@@ -27,13 +48,11 @@ export const TaskItem = ({ task }) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    marginLeft: '20px', 
-    marginTop: '8px'
   };
 
   const subtasks = useLiveQuery(() => 
     db.tasks.where('parentId').equals(String(task.id)).sortBy('order')
-  );
+  ) || [];
 
   const handleToggle = () => {
     updateTask(task.id, { completed: !task.completed });
@@ -71,14 +90,6 @@ export const TaskItem = ({ task }) => {
         {/* Drag Handle */}
         <span {...listeners} className="drag-handle">⋮⋮</span>
 
-        <button
-          className={`toggle-button ${subtasks && subtasks.length > 0 ? 'visible' : 'hidden'} ${isExpanded ? 'expanded' : ''}`}
-          onClick={() => setIsExpanded(!isExpanded)}
-          title={isExpanded ? "Collapse subtasks" : "Expand subtasks"}
-        >
-          ▶
-        </button>
-
         <input 
           type="checkbox" 
           checked={task.completed} 
@@ -104,21 +115,48 @@ export const TaskItem = ({ task }) => {
           </span>
         )}
 
-        <div className="task-actions">
-          <button 
-            onClick={() => setShowAddSubtask(!showAddSubtask)} 
-            title="Add Subtask"
-            className="task-action-button"
+        <button
+          className={`toggle-button ${isExpanded ? 'expanded' : ''} ${subtasks.length > 0 ? 'has-subtasks' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          title={isExpanded ? "Collapse subtasks" : "Expand subtasks"}
+        />
+
+        <div className="task-menu-container" ref={menuRef}>
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className={`task-menu-button ${showMenu ? 'active' : ''}`}
+            title="Menu"
           >
-            +
+            ⋮
           </button>
-          <button 
-            onClick={handleDelete} 
-            title="Delete" 
-            className="task-action-button"
-          >
-            ×
-          </button>
+
+          {showMenu && (
+            <div className="popover task-menu-popover">
+              <button
+                onClick={() => {
+                  setShowAddSubtask(!showAddSubtask);
+                  setShowMenu(false);
+                }}
+                className="task-menu-item"
+                title="Add Subtask"
+              >
+                <span>+</span> Add Subtask
+              </button>
+              <button 
+                onClick={() => {
+                  handleDelete();
+                  setShowMenu(false);
+                }}
+                className="task-menu-item danger"
+                title="Delete"
+              >
+                <span>×</span> Delete
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -134,7 +172,7 @@ export const TaskItem = ({ task }) => {
         </form>
       )}
 
-      {subtasks && subtasks.length > 0 && (
+      {subtasks?.length > 0 && (
         <div className={`subtasks-wrapper ${isExpanded ? 'expanded' : ''}`}>
           <div className="subtasks-inner">
             <SortableContext
