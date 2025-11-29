@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, updateTask, deleteTask, addTask } from '../db/db';
 import { useSortable } from '@dnd-kit/sortable';
@@ -6,13 +6,66 @@ import { CSS } from '@dnd-kit/utilities';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 /**
- * @param {object} props
- * @param {import('../db/db').Task} props.task
+ * @typedef {Object} Props
+ * @property {string} initialValue - Indicates whether the Courage component is present.
+ * @property {(value: string) => void} onSave - Indicates whether the Power component is present.
+ * @property {() => void} onCancel - Indicates whether the Wisdom component is present.
  */
-export const TaskItem = ({ task }) => {
+
+/** @type {React.FC<Props>} */
+const TaskEditor = memo(({ initialValue, onSave, onCancel }) => {
+  const [value, setValue] = useState(initialValue);
+  const textareaRef = useRef(/** @type {HTMLTextAreaElement | null} */(null));
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      const el = textareaRef.current;
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+      el.setSelectionRange(el.value.length, el.value.length);
+      el.focus();
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    setValue(e.target.value);
+    e.target.style.height = 'auto';
+    e.target.style.height = e.target.scrollHeight + 'px';
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      onSave(value);
+    } else if (e.key === 'Escape') {
+      onCancel();
+    }
+  };
+
+  return (
+    <div className="task-editor-overlay">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={handleChange}
+        onBlur={() => onSave(value)}
+        onKeyDown={handleKeyDown}
+      />
+      <div className="task-editor-help">
+        <small>Cmd+Enter to save, Esc to cancel</small>
+      </div>
+    </div>
+  );
+});
+
+TaskEditor.displayName = 'TaskEditor';
+
+/** @typedef {Object} TaskItemProps 
+ * @property {import('../db/db').Task} task
+ */
+/** @type {React.FC<TaskItemProps>}  */
+export const TaskItem = memo(({ task }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(task.title);
   const [showAddSubtask, setShowAddSubtask] = useState(false);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const [showMenu, setShowMenu] = useState(false);
@@ -54,21 +107,25 @@ export const TaskItem = ({ task }) => {
     db.tasks.where('parentId').equals(String(task.id)).sortBy('order')
   ) || [];
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     updateTask(task.id, { completed: !task.completed });
-  };
+  }, [task.id, task.completed]);
 
-  const handleSaveEdit = () => {
-    if (editTitle.trim()) {
-      updateTask(task.id, { title: editTitle });
-      setIsEditing(false);
+  const handleSaveEdit = useCallback((newTitle) => {
+    if (newTitle.trim() && newTitle !== task.title) {
+      updateTask(task.id, { title: newTitle });
     }
-  };
+    setIsEditing(false);
+  }, [task.id, task.title]);
+
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false);
+  }, []);
 
   /**
    * @param {React.FormEvent} e
    */
-  const handleAddSubtask = async (e) => {
+  const handleAddSubtask = useCallback(async (e) => {
     e.preventDefault();
     if (newSubtaskTitle.trim()) {
       await addTask(newSubtaskTitle, String(task.id));
@@ -76,13 +133,13 @@ export const TaskItem = ({ task }) => {
       setShowAddSubtask(false);
       setIsExpanded(true);
     }
-  };
+  }, [newSubtaskTitle, task.id]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (confirm('Delete this task and all subtasks?')) {
       deleteTask(task.id);
     }
-  };
+  }, [task.id]);
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} className="task-item">
@@ -96,23 +153,20 @@ export const TaskItem = ({ task }) => {
           onChange={handleToggle}
           className="task-checkbox"
         />
-        
-        {isEditing ? (
-          <input 
-            type="text" 
-            value={editTitle} 
-            onChange={(e) => setEditTitle(e.target.value)}
-            onBlur={handleSaveEdit}
-            onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-            autoFocus
+
+        <span
+          className={`task-title${task.completed ? ' completed' : ''}`}
+          onClick={() => setIsEditing(true)}
+        >
+          {task.title}
+        </span>
+
+        {isEditing && (
+          <TaskEditor
+            initialValue={task.title}
+            onSave={handleSaveEdit}
+            onCancel={handleCancelEdit}
           />
-        ) : (
-          <span 
-              className={`task-title${task.completed ? ' completed' : ''}`}
-            onClick={() => setIsEditing(true)}
-          >
-            {task.title}
-          </span>
         )}
 
         <button
@@ -188,4 +242,6 @@ export const TaskItem = ({ task }) => {
       )}
     </div>
   );
-};
+});
+
+TaskItem.displayName = 'TaskItem';

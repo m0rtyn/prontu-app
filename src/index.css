@@ -339,7 +339,6 @@ input[type="checkbox"] {
 .task-content {
   display: flex;
   align-items: flex-start;
-  gap: 0.1rem;
 }
 
 .drag-handle {
@@ -424,6 +423,7 @@ input[type="checkbox"]:checked::after {
   display: flex;
   align-items: center;
   min-height: var(--control-size);
+  overflow-wrap: anywhere;
 }
 
 .task-title.completed {
@@ -539,8 +539,13 @@ input[type="checkbox"]:checked::after {
 }
 
 .subtask-form {
-  margin-left: var(--control-size);
+  margin-left: calc(var(--control-size) * 2);
   margin-top: 0.5rem;
+
+  input[type="text"] {
+    margin-left: 0;
+    width: calc(100% - var(--control-size));
+  }
 }
 
 .subtasks {
@@ -750,4 +755,52 @@ input[type="checkbox"]:checked::after {
 /* TaskItem specific overrides */
 .task-item {
   margin-top: 0.5rem; /* Replaces inline marginTop: '8px' */
+}
+
+/* Task Editor Overlay */
+.task-editor-overlay {
+  position: absolute;
+  top: 100%; /* Position below the task title */
+  left: calc(var(--control-size) * 2); /* Align with text start (drag handle + checkbox) */
+  right: 0;
+  z-index: 1000;
+  background-color: var(--bg-color);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius);
+  box-shadow: 0 0.25rem 0rem 0.5rem var(--bg-color);
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  min-width: 200px;
+  width: calc(100% - (var(--control-size) * 4)); /* width of task desk - 4 controls */
+  box-sizing: border-box;
+}
+
+.task-editor-overlay textarea {
+  width: 100%;
+  min-height: 60px;
+  resize: none;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  padding: 0;
+  display: block;
+}
+
+.task-editor-overlay textarea:focus {
+  outline: none;
+}
+
+.task-editor-help {
+  margin-top: 0.5rem;
+  text-align: right;
+  color: var(--secondary-color);
+  font-size: 0.8rem;
+}
+
+/* Ensure TaskItem has relative positioning context for the overlay if needed */
+.task-content {
+  position: relative;
 }
